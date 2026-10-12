@@ -1,0 +1,6 @@
+Herdr Todo is licensed under the MIT license; see LICENSE.
+
+The Go binary includes tcell, uniseg, modernc SQLite and their dependencies.
+Dependency versions are pinned in go.mod and go.sum. Release archives include
+their copyright and license notices in licenses/. The Go runtime is distributed
+under the Go project's BSD-style license, included in licenses/Go/LICENSE.

@@ -1,15 +1,18 @@
 id = "herdr-todo"
 name = "Herdr Todo"
-version = "0.1.0"
+version = "0.2.0"
 min_herdr_version = "0.9.3"
 description = "Plan your work and remember what you finished, one shortcut away."
 platforms = ["linux", "macos"]
+
+[[build]]
+command = ["sh", "scripts/install.sh"]
 
 [[actions]]
 id = "open"
 title = "Open tasks"
 contexts = ["workspace", "pane"]
-command = ["python3", "todo.py", "open"]
+command = ["./bin/herdr-todo", "open"]
 
 [[panes]]
 id = "tasks"
@@ -17,4 +20,4 @@ title = "Tasks"
 placement = "popup"
 width = "85%"
 height = "80%"
-command = ["python3", "todo.py", "ui"]
+command = ["./bin/herdr-todo", "ui"]

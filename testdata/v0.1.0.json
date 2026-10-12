@@ -1,0 +1,100 @@
+{
+  "format": "herdr-todo",
+  "version": 2,
+  "exported_at": "2026-10-10T12:34:56.123456+00:00",
+  "tasks": [
+    {
+      "id": 1,
+      "title": "Review 日本語 storage sizing",
+      "note": "Keep the original note\nsecond line",
+      "project": "/work/project",
+      "project_label": "Project",
+      "workspace": "w1",
+      "pane": "w1:p1",
+      "session": "/tmp/herdr-origin.sock",
+      "state": "doing",
+      "created_at": "2026-10-10T12:34:56.123456+00:00",
+      "updated_at": "2026-10-10T12:34:56.123456+00:00",
+      "completed_at": null,
+      "space": {
+        "workspace_id": "w2",
+        "label": "Storage lab",
+        "session": "/tmp/herdr-origin.sock"
+      }
+    },
+    {
+      "id": 3,
+      "title": "Another project",
+      "note": "",
+      "project": "/work/other",
+      "project_label": "Other",
+      "workspace": "",
+      "pane": "",
+      "session": "",
+      "state": "planned",
+      "created_at": "2026-10-10T12:34:56.123456+00:00",
+      "updated_at": "2026-10-10T12:34:56.123456+00:00",
+      "completed_at": null,
+      "space": null
+    },
+    {
+      "id": 2,
+      "title": "Finished work",
+      "note": "Preserve this completion date",
+      "project": "/work/project",
+      "project_label": "Project",
+      "workspace": "w1",
+      "pane": "w1:p1",
+      "session": "/tmp/herdr-origin.sock",
+      "state": "done",
+      "created_at": "2026-10-10T12:34:56.123456+00:00",
+      "updated_at": "2026-10-10T12:34:56.123456+00:00",
+      "completed_at": "2026-10-10T12:34:56.123456+00:00",
+      "space": null
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "task_id": 1,
+      "kind": "created",
+      "title": "Review 日本語 storage sizing",
+      "at": "2026-10-10T12:34:56.123456+00:00"
+    },
+    {
+      "id": 2,
+      "task_id": 1,
+      "kind": "space_attached",
+      "title": "Review 日本語 storage sizing",
+      "at": "2026-10-10T12:34:56.123456+00:00"
+    },
+    {
+      "id": 3,
+      "task_id": 2,
+      "kind": "created",
+      "title": "Finished work",
+      "at": "2026-10-10T12:34:56.123456+00:00"
+    },
+    {
+      "id": 4,
+      "task_id": 2,
+      "kind": "done",
+      "title": "Finished work",
+      "at": "2026-10-10T12:34:56.123456+00:00"
+    },
+    {
+      "id": 5,
+      "task_id": 1,
+      "kind": "doing",
+      "title": "Review 日本語 storage sizing",
+      "at": "2026-10-10T12:34:56.123456+00:00"
+    },
+    {
+      "id": 6,
+      "task_id": 3,
+      "kind": "created",
+      "title": "Another project",
+      "at": "2026-10-10T12:34:56.123456+00:00"
+    }
+  ]
+}

@@ -25,22 +25,23 @@ workspaces close.
 ## Requirements
 
 - Herdr 0.9.3 or newer.
-- Linux or macOS with Python 3.10+ and its `curses` and `sqlite3` modules.
-- Git for installation from GitHub.
+- Linux or macOS on arm64 or amd64.
+- Git, curl, tar, and either `sha256sum` or `shasum` for installation.
 
-No pip packages, build step, service, or account required. On macOS, install a
-current Python 3 if needed. On Linux, use your distribution's Python package.
-Verify the modules with `python3 -c 'import curses, sqlite3'`.
+The plugin runs as a standalone Go binary. **Neither Python nor Go is required
+to install or use a release.** Herdr's build hook downloads the matching release
+binary over HTTPS and verifies its SHA256 checksum before installing it. There
+is no background service or account.
 
 ## Install
 
-Install the first release from GitHub:
+Install or upgrade from GitHub:
 
 ```sh
-herdr plugin install qselle/herdr-todo --ref v0.1.0
+herdr plugin install qselle/herdr-todo --ref v0.2.0
 ```
 
-For a local checkout:
+For a local checkout, build the binary first (see Development), then link it:
 
 ```sh
 herdr plugin link /absolute/path/to/herdr-todo
@@ -68,7 +69,7 @@ You can also open it from a Herdr pane:
 herdr plugin action invoke herdr-todo.open
 ```
 
-With SSH, install the plugin and Python on the machine running the Herdr server.
+With SSH, install the plugin on the machine running the Herdr server.
 Put the binding in the configuration providing your active keybindings (normally
 the client). Tasks live on that server; there is no cross-machine sync.
 
@@ -152,18 +153,19 @@ a task complete automatically.
 
 ## CLI
 
-Run these from a checkout, or use the absolute path to `todo.py`:
+Run these from a checkout, or use the absolute path to the installed
+`bin/herdr-todo` binary:
 
 ```sh
-python3 todo.py --project ~/work/infra add "Check storage sizing"
-python3 todo.py --project ~/work/infra add "Fixed the deploy" --done
-python3 todo.py doing 1
-python3 todo.py done 1
-python3 todo.py reopen 1
-python3 todo.py edit 1 --note "Waiting for the hardware details"
-python3 todo.py list --all-projects --view today
-python3 todo.py journal --id 1
-python3 todo.py export > tasks.json
+./bin/herdr-todo --project ~/work/infra add "Check storage sizing"
+./bin/herdr-todo --project ~/work/infra add "Fixed the deploy" --done
+./bin/herdr-todo doing 1
+./bin/herdr-todo done 1
+./bin/herdr-todo reopen 1
+./bin/herdr-todo edit 1 --note "Waiting for the hardware details"
+./bin/herdr-todo list --all-projects --view today
+./bin/herdr-todo journal --id 1
+./bin/herdr-todo export > tasks.json
 ```
 
 CLI output is JSON. Outside Herdr, new tasks default to the current directory;
@@ -175,7 +177,11 @@ CLI output is JSON. Outside Herdr, new tasks default to the current directory;
 The plugin stores `tasks.sqlite3` in `HERDR_PLUGIN_STATE_DIR`. For standalone use,
 the default is `${XDG_STATE_HOME:-~/.local/state}/herdr/plugins/herdr-todo/tasks.sqlite3`,
 matching Herdr's plugin state layout. `HERDR_TODO_DB` or `--db PATH` overrides it.
-Press `i` in the popup or run `python3 todo.py path` to find the database.
+
+**Upgrading from v0.1.0 keeps the same SQLite database.** The Go version reads the
+same schema and JSON export format. Task IDs, notes, completion dates, space links,
+and activity are preserved; no export/import is needed.
+Press `i` in the popup or run `./bin/herdr-todo path` to find the database.
 
 SQLite transactions serialize concurrent updates from multiple sessions. Task
 state changes retain timestamped events, and JSON exports include both current
@@ -193,22 +199,44 @@ The database is separate from the installed source checkout. To upgrade a GitHub
 installation, rerun `herdr plugin install qselle/herdr-todo --ref VERSION`.
 Herdr replaces the source checkout; tasks stay in the state directory. To restore
 a database backup, close task popups and stop task CLI writers, then replace the
-database with the backup. JSON import is not part of this first release.
+database with the backup. JSON import is not supported.
 
 ## Development
 
+Use Go 1.26 or newer. The application uses [tcell](https://github.com/gdamore/tcell)
+for the terminal interface and [modernc SQLite](https://pkg.go.dev/modernc.org/sqlite)
+for database access. Both work with `CGO_ENABLED=0`; no C compiler is needed to
+build the application.
+
 ```sh
-python3 -m unittest -v test_tasks
+go test ./...
+go vet ./...
+CGO_ENABLED=0 go build -trimpath -o bin/herdr-todo .
 herdr plugin link /absolute/path/to/herdr-todo
 ```
 
-The plugin uses only Python's standard library. Its manifest declares one
-`open` action and one terminal popup. The UI, task store, CLI, and Herdr context
-adapter are separate modules.
+`go test -race ./...` additionally checks for data races (Go's race detector needs
+a C compiler). Tests include a real database created by the Python v0.1.0 store,
+transaction rollback and concurrent writers, CLI/context handling, and simulated
+terminal interactions. They use temporary databases and do not touch your tasks.
 
-Keep the versions in `herdr-plugin.toml` and `herdr_todo/__init__.py` aligned
-when tagging a release. Installation uses the tagged source directly, with no
-build step. The `herdr-plugin` repository topic makes the plugin discoverable in
-the [Herdr marketplace](https://herdr.dev/docs/marketplace/).
+The manifest keeps one `open` action and one terminal popup. The Go source
+separates the CLI, task store, Herdr context and space adapter, input handling,
+and terminal rendering. Rebuild `bin/herdr-todo` after local source changes.
+
+Keep `VERSION`, `herdr-plugin.toml`, and release notes aligned before tagging.
+`VERSION` is embedded in the binary. To build all four release archives locally:
+
+```sh
+sh scripts/release.sh
+```
+
+On a `v*` tag, GitHub Actions runs the checks, builds Linux/macOS × arm64/amd64,
+and publishes the archives plus `SHA256SUMS`. Each archive includes dependency
+license notices. Publish the release assets before installing a new version
+from GitHub; an unreleased checkout can be built locally with Go.
+
+The `herdr-plugin` repository topic makes the plugin discoverable in the
+[Herdr marketplace](https://herdr.dev/docs/marketplace/).
 
 Herdr plugin docs: <https://herdr.dev/docs/plugins/>.
